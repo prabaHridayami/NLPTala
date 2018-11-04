@@ -1,0 +1,9 @@
+<DOC>
+<DOCNO>dokumen01</DOCNO>
+<TITLE> Catatan dokumen ke 1 </TITLE>
+<AUTHOR> No Name </AUTHOR>
+<DATE> Juli 2009 </DATE>
+<TEXT>
+Tokenisasi dan Segmentasi teks Tokenisasi adalah tahap pemrosesan di mana teks input dibagi menjadi unit-unit kecil yang disebut token, yang dapat berupa suatu kata, suatu angka, atau suatu tanda baca. Segmentasi adalah proses tokenisasi sederhana.
+</TEXT>
+</DOC>
