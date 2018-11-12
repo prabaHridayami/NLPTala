@@ -10,13 +10,17 @@
 <?php
 	include "stopword.php";
 	include "stemming.php";
-	include "koneksi.php";
+	include "tokenisasi.php";
 	if(!empty($_POST['text'])){
-		$line = $_POST['text'];
 		$kata = strtolower($_POST['text']); 
-		$token = tokenisasi($kata);
-		$stopword = stopword($kata);
+		$kata1 = $_POST['text'];
 		$jumlah_kata = jumlah_kata($kata);
+		$token = tokenisasi($kata);
+		$stopword1 = stopword($kata);
+		$splitparagraf = splitparagraf($kata);
+		$countparagraf = count($splitparagraf);
+		// echo json_encode($splitparagraf);
+
 
 	}else if(!empty($_POST['corpus'])){
 		$line = $_POST['corpus'];
@@ -45,7 +49,229 @@
 	}else{
 		header('Location: http://localhost/nlp/nlpindex.php?message=failed');
 	}
+
+
+
+	function katatype($kata){
+		$arr_stem[] = array();
+		$arr_val[] = array();
+		unset($arr_stem);
+		unset($arr_val);
+		$kata_type = stopword($kata);
+		foreach($kata_type as $z=>$z_value) {
+			$stem= hapusakhiran(hapusawalan2(hapusawalan1(hapuspp(hapuspartikel($z)))));   
+			if(!empty($z)){
+				$arr_stem[] = $stem;	                                                                                                    
+            }
+            // $arr_com =array_combine($arr_stem,$arr_val);
+				
+		}
+		return $arr_stem;
+	}
+
+	function kalimat($splitkalimat){
+		$stopwordproc = array();
+		unset($stopwordproc);
+		foreach($splitkalimat as $kalimat){
+			$stopwordproc[] = stopwordresult($kalimat);
+		}
+
+		return $stopwordproc;
+	}
 	
+	
+	function stopwordresult($kata){
+		$tokenisasinocount = tokenisasinocount($kata);
+		$stopword = array();
+		unset($stopword);
+		foreach($tokenisasinocount as $stop) { 
+			$stopwordtemp = caristopword($stop);
+			if($stopwordtemp != 0){
+				unset($stop);
+			}else{
+				$stopword[] = hapusakhiran(hapusawalan2(hapusawalan1(hapuspp(hapuspartikel($stop)))));
+				// $stopword[] = $stop;
+			}			
+		}
+		
+		return array_count_values($stopword);
+	}
+
+	$arr_combination = array();
+	// unset($arr_combination);
+
+	$countfile = 0;
+	foreach($splitparagraf as $splitparagraf){
+	
+	$splitkalimat = splitkalimat($splitparagraf);
+	$jumlah_kata_paragraf = jumlah_kata($splitparagraf);
+	$dokumen = kalimat($splitkalimat);
+	$term = katatype($kata);
+	$countterm = count($term);
+	
+	echo "<hr><br><br>" .json_encode($dokumen);
+	// echo "<br><br>" .json_encode($term);
+	$dokumencount = count(kalimat($splitkalimat));
+	// echo "<br><br>".$countterm."<br><br>";
+	echo "<br><br> Jumlah kata: ".$jumlah_kata_paragraf;
+	
+	$termresult = array();
+	$result = array();
+
+	//df perkalimat
+	
+
+	for($i=0;$i<$dokumencount-1;$i++){
+			$k = 0;
+		for($j=0;$j<$countterm;$j++){
+			foreach($dokumen[$i] as $item => $item_value){
+				// $df[$j][$k] = 0;
+				if($term[$j] == $item){
+					$df = $item_value;
+					$termresult = $term[$j];
+					$result= $df;
+					break;
+				}else{
+					$termresult = $term[$j];
+					$result= 0;
+				}
+			}
+			// $k++;
+		}
+	}
+
+	// echo "<br><br>" .json_encode($termresult);
+	// echo "<br><br>" .json_encode($result);
+	$arr_comdf = array();
+	$arr_term = array();
+	$arr_doccount = array();
+	unset($arr_term);
+	unset($arr_doccount);
+	unset($arr_comdf);
+	
+	//banyak dokumen yang mengandung kata
+	for($i=0;$i<$countterm;$i++){
+		$k = 1;
+		for($j=0;$j<$dokumencount-1;$j++){
+			if(array_key_exists($term[$i], $dokumen[$j])){
+				$docterm = $term[$i];
+				$k++;
+			}
+		}
+		$arr_term [] = $docterm;
+		$arr_doccount [] = $k;
+	}
+	
+	//tfidf
+	$arr_comdf = array_combine($arr_term,$arr_doccount);
+	echo "<br><br>" .json_encode($arr_comdf);
+	$arr_tf = array();
+	$tf = array();
+	$arr_comtfidf = array();
+	$tfidf = array();
+	unset($arr_comtfidf);
+	unset($tf);
+	unset($tfidf);
+	for($i=0;$i<$dokumencount-1;$i++){
+		$countdoc = count($dokumen[$i]);
+		for($j=0;$j<$countdoc;$j++){
+			foreach($dokumen[$i] as $item => $item_value){
+				foreach($arr_comdf as $df=>$df_valued){
+					if($item == $df){
+						
+						$tf [] = $item;
+						$tfidf []= number_format(($item_value*log(($jumlah_kata_paragraf/$df_valued),10)),2);
+						// $tfidf []= (1*log((42/2),10));
+						break;
+					}
+				}
+			}
+		}
+		// $arr_tf [] = $tf;
+		// $arr_tfidf [] = $tfidf;
+		$arr_comtfidf = array_combine($tf,$tfidf);
+	}
+	// echo "<br><br>" .json_encode($arr_comtfidf);
+	// foreach($arr_comtfidf as $term=>$valued){
+	// 	echo "<br><br>".$term." :".$valued;
+	// }
+
+	
+	//term*tfidf
+	$arr_sumtfidf = array();
+	unset($arr_sumtfidf);
+	for($i=0;$i<$dokumencount-1;$i++){
+		unset($tf);
+		unset($tfidf);
+		foreach($dokumen[$i] as $item => $item_value){
+			$sumall = 0;
+			foreach($arr_comtfidf as $term=>$valued){
+				if($item == $term){
+					$tf [] = $item;
+					$tfidf []= number_format(($item_value*$valued),2);
+					break;
+				}
+				// $sumall = $sumall + $tfidf;
+			}
+			
+		}
+		$arr_sumtfidf [$i] = array_combine($tf,$tfidf);
+	}
+	// $arr_sumtfidf = array_combine($tf,$tfidf);
+	// echo "<br>". json_encode($arr_sumtfidf);
+	// echo "<br><hr>";
+
+	//sumt bobot per dokumen per paragraf
+	unset($arr_dokumen);
+	unset($arr_sumall);
+	for($i=0;$i<$dokumencount-1;$i++){
+		$sumall = 0;
+		foreach($arr_sumtfidf[$i] as $term=>$valued){
+			$sumall = $sumall+$valued;	
+		}
+		// $arr_dokumen [] = $countfile.$i;
+		$arr_sumall [] = number_format($sumall,2);
+		// echo "<br><br> Dokumen ".$i." :".$sumall;
+	}
+	// echo json_encode($arr_dokumen);
+	// echo json_encode($arr_sumall);
+	// $arr_combination = array_combine($arr_dokumen,$arr_sumall);
+	// $arr_combination = $arr_sumall;
+
+	$countfile++;
+	$arr_comall []= $arr_sumall;
+}
+	echo "<br>";
+	echo json_encode($arr_comall);
+	//index bobot terbesar
+	for($paragraf = 0; $paragraf<$countparagraf;$paragraf++){
+		$max_bot = max($arr_comall[$paragraf]);
+		foreach($arr_comall[$paragraf] as $bobot => $bobot_value){
+			if($max_bot == $bobot_value){
+				$indexbobot = $bobot;
+				$bobot = $bobot_value;
+				break;
+			}
+		}
+		$arr_indexbobot []= $indexbobot;
+		$arr_bobot [] = $bobot;
+	}
+	// echo json_encode($arr_indexbobot);
+	// echo json_encode($arr_bobot);
+	$arr_combobot = array_combine($arr_indexbobot,$arr_bobot);
+	echo json_encode($arr_combobot);
+	$countarrbot = count($arr_combobot);
+
+	$splitparagraf1 = splitparagraf($kata1);
+	echo json_encode($arr_combobot);
+	
+	echo "<hr>";
+
+	for($hitparagraf = 0; $hitparagraf<$countparagraf; $hitparagraf++){
+		$splitkalimat1 = splitkalimat($splitparagraf1[$hitparagraf]);
+		echo $splitkalimat1[$arr_indexbobot[$hitparagraf]].". ";
+	}
+			
 ?>
 
 <body style="background-image: url(bg.jpg); background-size: 100%">
@@ -91,17 +317,21 @@
 				<div class="form-group row">
 					<label for="inputEmail3" class="col-sm-4 col-form-label">Jumlah Kata Type</label>
 					<div class="col-sm-8">
-						<p>: <?php 
+						<p>: 
+						<?php 
 							$token1 = 	0;
-							arsort($stopword);
-							foreach($stopword as $a => $a_value){   
+							$kata_type = stopword($kata);
+							arsort($kata_type);
+							foreach($kata_type as $a => $a_value){   
 								$stem= hapusakhiran(hapusawalan2(hapusawalan1(hapuspp(hapuspartikel($a)))));
 							    if(!empty($a)){
 							    	$token1 = ($token1+1);
 								}	
 									
 							}
-						echo $token1;?> </p>
+						echo $token1;
+						?> 
+						</p>
 					</div>
 				</div>
 
@@ -109,7 +339,7 @@
 					<tr>
 				        <td><button id="btn_stopword" name ="btn-stopword" type="button" class="btn btn-primary" onclick="stopwordFunction()">STOPWORD</button></td>
 				        <td><button id="btn-stemming" name ="btn-stemming" type="button" class="btn btn-info" onclick="stemmingFunction()">STEMMING</button></td>
-				        <td><button id="btn_token" name ="btn-token" type="button" class="btn btn-success" onclick="tokenFunction()"">TOKEN</button></td>
+				        <td><button id="btn_token" name ="btn-token" type="button" class="btn btn-success" onclick="tokenFunction()">TOKEN</button></td>
 				    </tr>
 				</table>
 				<br>
@@ -122,15 +352,15 @@
 									<th width="200px">VALUE</th>
 								</tr>
 								<?php 
-								arsort($stopword);
-								foreach($stopword as $y => $y_value) {   
-								    if(!empty($y)){
+								$stopwordresult = stopword($kata);	
+								arsort($stopwordresult);
+								foreach($stopwordresult as $y =>$y_value){
+									if(!empty($y)){
 								    	echo "<tr>";
 									    echo "<td>".$y."</td>";
 									    echo "<td>".$y_value."</td>";
 									    echo "</tr>";
 									}	
-										
 								}
 								?>
 							</table>
@@ -142,8 +372,9 @@
 									<th width="200px">VALUE</th>
 								</tr>
 								<?php 
-								arsort($stopword);
-								foreach($stopword as $z => $z_value) {
+								$stopwordresult = stopword($kata);
+								arsort($stopwordresult);
+								foreach($stopwordresult as $z=>$z_value) {
 									$stem= hapusakhiran(hapusawalan2(hapusawalan1(hapuspp(hapuspartikel($z)))));   
 								    if(!empty($z)){
 								    	echo "<tr>";

@@ -21,7 +21,7 @@
 				<div class="form-group row"> 
 					<label for="inputEmail3" class="col-sm-4 col-form-label"><input type="radio" name="first" value="text" id="disable" checked>    Input Text</label>
 					<div  class="col-sm-8">
-						<textarea id="input1" name="text" type="string" class="form-control" id="inputEmail3" ></textarea>
+						<textarea rows = "8" id="input1" name="text" type="string" class="form-control" id="inputEmail3" ></textarea>
 					</div>
 				</div>
 
