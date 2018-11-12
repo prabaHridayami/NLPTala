@@ -264,13 +264,6 @@
 
 	$splitparagraf1 = splitparagraf($kata1);
 	echo json_encode($arr_combobot);
-	
-	echo "<hr>";
-
-	for($hitparagraf = 0; $hitparagraf<$countparagraf; $hitparagraf++){
-		$splitkalimat1 = splitkalimat($splitparagraf1[$hitparagraf]);
-		echo $splitkalimat1[$arr_indexbobot[$hitparagraf]].". ";
-	}
 			
 ?>
 
@@ -330,6 +323,19 @@
 									
 							}
 						echo $token1;
+						?> 
+						</p>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label for="inputEmail3" class="col-sm-4 col-form-label">Ringkasan</label>
+					<div class="col-sm-8">
+						<p>: 
+						<?php 
+							for($hitparagraf = 0; $hitparagraf<$countparagraf; $hitparagraf++){
+								$splitkalimat1 = splitkalimat($splitparagraf1[$hitparagraf]);
+								echo $splitkalimat1[$arr_indexbobot[$hitparagraf]].". ";
+							}
 						?> 
 						</p>
 					</div>
