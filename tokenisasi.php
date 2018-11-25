@@ -70,7 +70,7 @@ function splitkalimat($kata){
 function splitkalimat1($kata){
 	// $text_token 	= preg_replace("/[^A-Za-z0-9-. ]/","", $kata);
 	// $trim_token 	= trim($text_token);
-	$kata_token   	= explode(".",$text_token);
+	$kata_token   	= explode(".",$kata);
 	$data_token   	= $kata_token;
 
 	return $data_token;

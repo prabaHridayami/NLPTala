@@ -22,30 +22,30 @@
 		// echo json_encode($splitparagraf);
 
 
-	}else if(!empty($_POST['corpus'])){
-		$line = $_POST['corpus'];
-		$start = 0;
-		$filename = $_POST['corpus'];
-		$handle = fopen($filename, "r"); 
-		while (!feof($handle)) { 
-			$line = fgets($handle); //baca per baris 
+	// }else if(!empty($_POST['corpus'])){
+	// 	$line = $_POST['corpus'];
+	// 	$start = 0;
+	// 	$filename = $_POST['corpus'];
+	// 	$handle = fopen($filename, "r"); 
+	// 	while (!feof($handle)) { 
+	// 		$line = fgets($handle); //baca per baris 
 
-				$line = preg_replace('/^\s*/', '', $line); 
-				$line = preg_replace('/\s*$/', '', $line);
+	// 			$line = preg_replace('/^\s*/', '', $line); 
+	// 			$line = preg_replace('/\s*$/', '', $line);
 
-			$line = strtolower($line); 
-			if ($line=="<text>") { // awal
-				$start=1; 
-			}elseif ($line=="</text>") { 
-				$start=0; 
-			}
-			if ($start==1 && $line!="<text>"){ 
-				$kata = strtolower($line); 
-				$token = tokenisasi($kata);
-				$stopword = stopword($kata);
-				$jumlah_kata = jumlah_kata($kata);
-			}
-		}
+	// 		$line = strtolower($line); 
+	// 		if ($line=="<text>") { // awal
+	// 			$start=1; 
+	// 		}elseif ($line=="</text>") { 
+	// 			$start=0; 
+	// 		}
+	// 		if ($start==1 && $line!="<text>"){ 
+	// 			$kata = strtolower($line); 
+	// 			$token = tokenisasi($kata);
+	// 			$stopword = stopword($kata);
+	// 			$jumlah_kata = jumlah_kata($kata);
+	// 		}
+	// 	}
 	}else{
 		header('Location: http://localhost/nlp/nlpindex.php?message=failed');
 	}
@@ -97,156 +97,141 @@
 		return array_count_values($stopword);
 	}
 
+	// function 
+
 	$arr_combination = array();
-	// unset($arr_combination);
-
 	$countfile = 0;
-	foreach($splitparagraf as $splitparagraf){
-	
-	$splitkalimat = splitkalimat($splitparagraf);
-	$jumlah_kata_paragraf = jumlah_kata($splitparagraf);
-	$dokumen = kalimat($splitkalimat);
-	$term = katatype($kata);
-	$countterm = count($term);
-	
-	echo "<hr><br><br>" .json_encode($dokumen);
-	// echo "<br><br>" .json_encode($term);
-	$dokumencount = count(kalimat($splitkalimat));
-	// echo "<br><br>".$countterm."<br><br>";
-	echo "<br><br> Jumlah kata: ".$jumlah_kata_paragraf;
-	
-	$termresult = array();
-	$result = array();
 
-	//df perkalimat
+	function summary_proc($splitparagraf){
+		foreach($splitparagraf as $splitparagraf){
 	
-
-	for($i=0;$i<$dokumencount-1;$i++){
-			$k = 0;
-		for($j=0;$j<$countterm;$j++){
-			foreach($dokumen[$i] as $item => $item_value){
-				// $df[$j][$k] = 0;
-				if($term[$j] == $item){
-					$df = $item_value;
-					$termresult = $term[$j];
-					$result= $df;
-					break;
-				}else{
-					$termresult = $term[$j];
-					$result= 0;
-				}
-			}
-			// $k++;
-		}
-	}
-
-	// echo "<br><br>" .json_encode($termresult);
-	// echo "<br><br>" .json_encode($result);
-	$arr_comdf = array();
-	$arr_term = array();
-	$arr_doccount = array();
-	unset($arr_term);
-	unset($arr_doccount);
-	unset($arr_comdf);
+			$splitkalimat = splitkalimat($splitparagraf);
+			$jumlah_kata_paragraf = jumlah_kata($splitparagraf);
+			$dokumen = kalimat($splitkalimat);
+			$term = katatype($splitparagraf);
+			$countterm = count($term);
+			$dokumencount = count(kalimat($splitkalimat));
+			
+			$termresult = array();
+			$result = array();
 	
-	//banyak dokumen yang mengandung kata
-	for($i=0;$i<$countterm;$i++){
-		$k = 1;
-		for($j=0;$j<$dokumencount-1;$j++){
-			if(array_key_exists($term[$i], $dokumen[$j])){
-				$docterm = $term[$i];
-				$k++;
-			}
-		}
-		$arr_term [] = $docterm;
-		$arr_doccount [] = $k;
-	}
-	
-	//tfidf
-	$arr_comdf = array_combine($arr_term,$arr_doccount);
-	echo "<br><br>" .json_encode($arr_comdf);
-	$arr_tf = array();
-	$tf = array();
-	$arr_comtfidf = array();
-	$tfidf = array();
-	unset($arr_comtfidf);
-	unset($tf);
-	unset($tfidf);
-	for($i=0;$i<$dokumencount-1;$i++){
-		$countdoc = count($dokumen[$i]);
-		for($j=0;$j<$countdoc;$j++){
-			foreach($dokumen[$i] as $item => $item_value){
-				foreach($arr_comdf as $df=>$df_valued){
-					if($item == $df){
-						
-						$tf [] = $item;
-						$tfidf []= number_format(($item_value*log(($jumlah_kata_paragraf/$df_valued),10)),2);
-						// $tfidf []= (1*log((42/2),10));
-						break;
+			// tf perkalimat
+			for($i=0;$i<$dokumencount-1;$i++){
+					// $k = 0;
+				for($j=0;$j<$countterm;$j++){
+					foreach($dokumen[$i] as $item => $item_value){
+						// $df[$j][$k] = 0;
+						if($term[$j] == $item){
+							$df = $item_value;
+							$termresult = $term[$j];
+							$result = $df;
+							break;
+						}else{
+							$termresult = $term[$j];
+							$result = 0;
+						}
 					}
 				}
 			}
-		}
-		// $arr_tf [] = $tf;
-		// $arr_tfidf [] = $tfidf;
-		$arr_comtfidf = array_combine($tf,$tfidf);
-	}
-	// echo "<br><br>" .json_encode($arr_comtfidf);
-	// foreach($arr_comtfidf as $term=>$valued){
-	// 	echo "<br><br>".$term." :".$valued;
-	// }
-
 	
-	//term*tfidf
-	$arr_sumtfidf = array();
-	unset($arr_sumtfidf);
-	for($i=0;$i<$dokumencount-1;$i++){
-		unset($tf);
-		unset($tfidf);
-		foreach($dokumen[$i] as $item => $item_value){
-			$sumall = 0;
-			foreach($arr_comtfidf as $term=>$valued){
-				if($item == $term){
-					$tf [] = $item;
-					$tfidf []= number_format(($item_value*$valued),2);
-					break;
-				}
-				// $sumall = $sumall + $tfidf;
-			}
+			$arr_comdf = array();
+			$arr_term = array();
+			$arr_doccount = array();
+			unset($arr_term);
+			unset($arr_doccount);
+			unset($arr_comdf);
 			
+			//banyak dokumen yang mengandung kata
+			for($i=0;$i<$countterm;$i++){
+				$k = 0;
+				for($j=0;$j<$dokumencount-1;$j++){
+					if(array_key_exists($term[$i], $dokumen[$j])){
+						// $docterm = $term[$i];
+						$k++;
+					}
+				}
+				$arr_term [] = $term[$i];
+				$arr_doccount [] = $k;
+				
+			}
+	
+			$arr_comdf = array_combine($arr_term,$arr_doccount);
+			// echo "<br><br>" .json_encode($dokumen);
+			// echo "<br><br>" .json_encode($arr_term);
+			// echo "<br><br>" .json_encode($arr_doccount);
+	
+			//tfidf
+			$arr_tf = array();
+			$tf = array();
+			$arr_comtfidf = array();
+			$tfidf = array();
+			unset($arr_comtfidf);
+			unset($tf);
+			unset($tfidf);
+			for($i=0;$i<$dokumencount-1;$i++){
+				$countdoc = count($dokumen[$i]);
+				for($j=0;$j<$countdoc;$j++){
+					foreach($dokumen[$i] as $item => $item_value){
+						foreach($arr_comdf as $df=>$df_valued){
+							if($item == $df){
+								
+								$tf [] = $item;
+								$tfidf []= number_format(($item_value*log((($dokumencount-1)/$df_valued),10)),2);
+								// $tfidf []= (1*log((42/2),10));
+								break;
+							}
+						}
+					}
+				}
+				$arr_comtfidf = array_combine($tf,$tfidf);
+			}
+			// echo "<br><br>" .json_encode($arr_comtfidf);
+		
+			//term*tfidf
+			$arr_sumtfidf = array();
+			unset($arr_sumtfidf);
+			for($i=0;$i<$dokumencount-1;$i++){
+				unset($tf);
+				unset($tfidf);
+				foreach($dokumen[$i] as $item => $item_value){
+					$sumall = 0;
+					foreach($arr_comtfidf as $term=>$valued){
+						if($item == $term){
+							$tf [] = $item;
+							$tfidf []= number_format(($item_value*$valued),2);
+							break;
+						}
+						// $sumall = $sumall + $tfidf;
+					}
+					
+				}
+				$arr_sumtfidf [$i] = array_combine($tf,$tfidf);
+			}
+	
+			unset($arr_dokumen);
+			unset($arr_sumall);
+			for($i=0;$i<$dokumencount-1;$i++){
+				$sumall = 0;
+				foreach($arr_sumtfidf[$i] as $term=>$valued){
+					$sumall = $sumall+$valued;	
+				}
+				$arr_sumall [] = number_format($sumall,2);
+			}
+			$arr_comall []= $arr_sumall;
 		}
-		$arr_sumtfidf [$i] = array_combine($tf,$tfidf);
+		return $arr_comall;
 	}
-	// $arr_sumtfidf = array_combine($tf,$tfidf);
-	// echo "<br>". json_encode($arr_sumtfidf);
-	// echo "<br><hr>";
-
-	//sumt bobot per dokumen per paragraf
-	unset($arr_dokumen);
-	unset($arr_sumall);
-	for($i=0;$i<$dokumencount-1;$i++){
-		$sumall = 0;
-		foreach($arr_sumtfidf[$i] as $term=>$valued){
-			$sumall = $sumall+$valued;	
-		}
-		// $arr_dokumen [] = $countfile.$i;
-		$arr_sumall [] = number_format($sumall,2);
-		// echo "<br><br> Dokumen ".$i." :".$sumall;
-	}
-	// echo json_encode($arr_dokumen);
-	// echo json_encode($arr_sumall);
-	// $arr_combination = array_combine($arr_dokumen,$arr_sumall);
-	// $arr_combination = $arr_sumall;
-
-	$countfile++;
-	$arr_comall []= $arr_sumall;
-}
-	echo "<br>";
-	echo json_encode($arr_comall);
+	
+	$summary_proc = summary_proc($splitparagraf);
+	// echo "<hr>";
+	// echo "bobot per-kalimat <br>";
+	// echo json_encode($summary_proc);
+	// echo "<hr>";
+	// echo "bobot terbesar <br>";
 	//index bobot terbesar
 	for($paragraf = 0; $paragraf<$countparagraf;$paragraf++){
-		$max_bot = max($arr_comall[$paragraf]);
-		foreach($arr_comall[$paragraf] as $bobot => $bobot_value){
+		$max_bot = max($summary_proc[$paragraf]);
+		foreach($summary_proc[$paragraf] as $bobot => $bobot_value){
 			if($max_bot == $bobot_value){
 				$indexbobot = $bobot;
 				$bobot = $bobot_value;
@@ -256,14 +241,12 @@
 		$arr_indexbobot []= $indexbobot;
 		$arr_bobot [] = $bobot;
 	}
-	// echo json_encode($arr_indexbobot);
-	// echo json_encode($arr_bobot);
 	$arr_combobot = array_combine($arr_indexbobot,$arr_bobot);
-	echo json_encode($arr_combobot);
 	$countarrbot = count($arr_combobot);
 
 	$splitparagraf1 = splitparagraf($kata1);
-	echo json_encode($arr_combobot);
+	// echo json_encode($arr_combobot);
+	// echo json_encode($arr_indexbobot);
 			
 ?>
 
@@ -276,27 +259,27 @@
 					<label for="inputEmail3" class="col-sm-4 col-form-label">Text Awal :</label>
 					<div class="col-sm-8">
 						<p>: <?php 
-							if(!empty($_POST['text'])){
+							// if(!empty($_POST['text'])){
 								echo $_POST['text'];
-							}else{
-								$filename = $_POST['corpus'];
-								$handle = fopen($filename, "r"); 
-								while (!feof($handle)) { 
-									$line = fgets($handle);
-									$line = preg_replace('/^\s*/', '', $line); 
-									$line = preg_replace('/\s*$/', '', $line);
+							// }else{
+							// 	$filename = $_POST['corpus'];
+							// 	$handle = fopen($filename, "r"); 
+							// 	while (!feof($handle)) { 
+							// 		$line = fgets($handle);
+							// 		$line = preg_replace('/^\s*/', '', $line); 
+							// 		$line = preg_replace('/\s*$/', '', $line);
 
-									$line = strtolower($line); 
-									if ($line=="<text>") { // awal
-										$start=1; 
-									}elseif ($line=="</text>") { 
-										$start=0; 
-									}
-									if ($start==1 && $line!="<text>"){
-										echo $line;
-									}
-								}
-							}
+							// 		$line = strtolower($line); 
+							// 		if ($line=="<text>") { // awal
+							// 			$start=1; 
+							// 		}elseif ($line=="</text>") { 
+							// 			$start=0; 
+							// 		}
+							// 		if ($start==1 && $line!="<text>"){
+							// 			echo $line;
+							// 		}
+							// 	}
+							// }
 
 						?> </p>
 					</div>
@@ -331,14 +314,55 @@
 					<label for="inputEmail3" class="col-sm-4 col-form-label">Ringkasan</label>
 					<div class="col-sm-8">
 						<p>: 
-						<?php 
+						<?php  
+							if($arr_indexbobot[0]!=0){
+								$splitkalimat1 = splitkalimat1($splitparagraf1[0]);
+								echo $splitkalimat1[0].". ";
+							}
 							for($hitparagraf = 0; $hitparagraf<$countparagraf; $hitparagraf++){
-								$splitkalimat1 = splitkalimat($splitparagraf1[$hitparagraf]);
+								$splitkalimat1 = splitkalimat1($splitparagraf1[$hitparagraf]);
 								echo $splitkalimat1[$arr_indexbobot[$hitparagraf]].". ";
+							}
+
+							$splitkalimat1 = splitkalimat1($splitparagraf1[$countparagraf-1]);
+							$lastsplit = count($splitkalimat1)-2;
+							$lastindex = count($arr_indexbobot)-1;
+							if(($arr_indexbobot[$lastindex]) !=  $lastsplit){
+								echo $splitkalimat1[$lastsplit].". ";
 							}
 						?> 
 						</p>
 					</div>
+				</div>
+
+				<div class="col-sm-12" >
+					<table class="table">
+						<?php 
+							
+							for($hitparagraf = 0; $hitparagraf<$countparagraf; $hitparagraf++){
+								echo "<tr>";
+								echo "<th width='800px' style='text-align:center'> Kalimat pada Paragraf ". ($hitparagraf+1)."<th>";
+								echo "<th width='200px' style='text-align:center'> Bobot </th>";
+								echo "</tr>";
+								$splitkalimat1 = splitkalimat1($splitparagraf1[$hitparagraf]);
+								$dokumencount1 = count(kalimat($splitkalimat1));
+								
+								for ($doc=0;$doc<$dokumencount1-1;$doc++){
+								echo "<tr>";
+								echo "<td>".$splitkalimat1[$doc]."<td>";
+								echo "<td style='text-align:center'>".$summary_proc[$hitparagraf][$doc]."<td>";
+								echo "</tr>";
+	
+								}
+								
+							
+							}
+
+							
+
+						?>
+					</table>
+						
 				</div>
 
 				<table width="900px">

@@ -19,18 +19,18 @@
 			<form id="form" method="post" action="display.php" style="width: 80%; height: 700%; padding: 20px;  margin-left: auto; margin-right: auto; border: 1px solid #DDD; box-shadow: 10px 10px 10px #DDD; background-color: white; border-radius: 10px;">
 				<h1 style="margin-bottom: 30px">NLP Bahasa Indonesia - Tala</h1>
 				<div class="form-group row"> 
-					<label for="inputEmail3" class="col-sm-4 col-form-label"><input type="radio" name="first" value="text" id="disable" checked>    Input Text</label>
+					<label for="inputEmail3" class="col-sm-4 col-form-label"> Input Text</label>
 					<div  class="col-sm-8">
 						<textarea rows = "8" id="input1" name="text" type="string" class="form-control" id="inputEmail3" ></textarea>
 					</div>
 				</div>
 
-				<div class="form-group row">
+				<!-- <div class="form-group row">
 					<label for="inputEmail3" class="col-sm-4 col-form-label"><input type="radio" name="first" value="corpus" id="disable">    Input File</label>
 					<div class="col-sm-8">
 						<input class="corpus" id="input2" name="corpus" type="file" />
 					</div>
-				</div>
+				</div> -->
 
 				<div class="form-group row">
 					<div class="col-sm-10">
@@ -41,7 +41,7 @@
 		</div>
 	</div>				
 </body>
-<script type="text/javascript">
+<!-- <script type="text/javascript">
 	$(document).ready(function() {
 		$(".corpus").prop("disabled", true);
 		$("form input:radio").change(function() {
@@ -56,6 +56,6 @@
 		}
 		});
 });
-</script>
+</script> -->
 </html>
 
