@@ -160,66 +160,110 @@
 			// echo "<br><br>" .json_encode($arr_term);
 			// echo "<br><br>" .json_encode($arr_doccount);
 	
-			//tfidf
 			$arr_tf = array();
-			$tf = array();
-			$arr_comtfidf = array();
-			$tfidf = array();
-			unset($arr_comtfidf);
-			unset($tf);
-			unset($tfidf);
-			for($i=0;$i<$dokumencount-1;$i++){
-				$countdoc = count($dokumen[$i]);
-				for($j=0;$j<$countdoc;$j++){
-					foreach($dokumen[$i] as $item => $item_value){
-						foreach($arr_comdf as $df=>$df_valued){
-							if($item == $df){
-								
-								$tf [] = $item;
-								$tfidf []= number_format(($item_value*log((($dokumencount-1)/$df_valued),10)),2);
-								// $tfidf []= (1*log((42/2),10));
-								break;
-							}
-						}
-					}
-				}
-				$arr_comtfidf = array_combine($tf,$tfidf);
-			}
-			// echo "<br><br>" .json_encode($arr_comtfidf);
+		$tf = array();
+		$tftemp = array();
+		$arr_comtfidf = array();
+		$tfidf = array();
+		$com_tfidf = array();
+		$com_tf = array();
+		unset($arr_comtfidf);
 		
-			//term*tfidf
-			$arr_sumtfidf = array();
-			unset($arr_sumtfidf);
-			for($i=0;$i<$dokumencount-1;$i++){
+		for($i=0;$i<$dokumencount-1;$i++){
+			$countdoc = count($dokumen[$i]);
+			for($j=0;$j<$countdoc;$j++){
 				unset($tf);
 				unset($tfidf);
 				foreach($dokumen[$i] as $item => $item_value){
-					$sumall = 0;
-					foreach($arr_comtfidf as $term=>$valued){
-						if($item == $term){
-							$tf [] = $item;
-							$tfidf []= number_format(($item_value*$valued),2);
+					foreach($arr_comdf as $df=>$df_valued){
+						if($item == $df){
+							$tftemp = $item;
+							$tfidftemp = number_format(($item_value*log((($dokumencount-1)/$df_valued),10)),2);
 							break;
 						}
-						// $sumall = $sumall + $tfidf;
 					}
-					
+					$tf [] = $tftemp;
+					$tfidf [] =$tfidftemp;
 				}
-				$arr_sumtfidf [$i] = array_combine($tf,$tfidf);
+				
 			}
-	
-			unset($arr_dokumen);
-			unset($arr_sumall);
-			for($i=0;$i<$dokumencount-1;$i++){
-				$sumall = 0;
-				foreach($arr_sumtfidf[$i] as $term=>$valued){
-					$sumall = $sumall+$valued;	
-				}
-				$arr_sumall [] = number_format($sumall,2);
-			}
-			$arr_comall []= $arr_sumall;
+			$com_tf []= $tf;
+			$com_tfidf [] = $tfidf;
+
 		}
-		return $arr_comall;
+			// echo "<br>".json_encode($com_tf);
+			// echo "<br>".json_encode($com_tfidf);
+			//tfidf
+			// $arr_tf = array();
+			// $tf = array();
+			// $arr_comtfidf = array();
+			// $tfidf = array();
+			// unset($arr_comtfidf);
+			// unset($tf);
+			// unset($tfidf);
+			// for($i=0;$i<$dokumencount-1;$i++){
+			// 	$countdoc = count($dokumen[$i]);
+			// 	for($j=0;$j<$countdoc;$j++){
+			// 		foreach($dokumen[$i] as $item => $item_value){
+			// 			foreach($arr_comdf as $df=>$df_valued){
+			// 				if($item == $df){
+								
+			// 					$tf [] = $item;
+			// 					$tfidf []= number_format(($item_value*log((($dokumencount-1)/$df_valued),10)),2);
+			// 					// $tfidf []= (1*log((42/2),10));
+			// 					break;
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// 	$arr_comtfidf = array_combine($tf,$tfidf);
+			// }
+			// echo "<br><br>" .json_encode($arr_comtfidf);
+		
+			//term*tfidf
+			// $arr_sumtfidf = array();
+			// unset($arr_sumtfidf);
+			// for($i=0;$i<$dokumencount-1;$i++){
+			// 	unset($tf);
+			// 	unset($tfidf);
+			// 	foreach($dokumen[$i] as $item => $item_value){
+			// 		$sumall = 0;
+			// 		foreach($arr_comtfidf as $term=>$valued){
+			// 			if($item == $term){
+			// 				$tf [] = $item;
+			// 				$tfidf []= number_format(($item_value*$valued),2);
+			// 				break;
+			// 			}
+			// 			// $sumall = $sumall + $tfidf;
+			// 		}
+					
+			// 	}
+			// 	$arr_sumtfidf [$i] = array_combine($tf,$tfidf);
+			// }
+	
+			// unset($arr_dokumen);
+			// unset($arr_sumall);
+			// for($i=0;$i<$dokumencount-1;$i++){
+			// 	$sumall = 0;
+			// 	foreach($arr_sumtfidf[$i] as $term=>$valued){
+			// 		$sumall = $sumall+$valued;	
+			// 	}
+			// 	$arr_sumall [] = number_format($sumall,2);
+			// }
+			// $arr_comall []= $arr_sumall;
+			$counttf = count($com_tf);	
+			$value_all = array();
+			for($i=0;$i<$counttf;$i++){
+				// unset($value_all);
+				$value =0;
+				foreach($com_tfidf[$i] as $tfidf_value){
+					$value = number_format($value + $tfidf_value,2);
+				}
+				$value_all [] = $value;
+			}
+			$com_value [] = $value_all;
+		}
+		return $com_value;
 	}
 	
 	$summary_proc = summary_proc($splitparagraf);
@@ -228,7 +272,7 @@
 	// echo json_encode($summary_proc);
 	// echo "<hr>";
 	// echo "bobot terbesar <br>";
-	//index bobot terbesar
+	// index bobot terbesar
 	for($paragraf = 0; $paragraf<$countparagraf;$paragraf++){
 		$max_bot = max($summary_proc[$paragraf]);
 		foreach($summary_proc[$paragraf] as $bobot => $bobot_value){
