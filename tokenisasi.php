@@ -41,7 +41,8 @@ function jumlah_kata($kata){
 }
 
 function tokenisasi($kata){
-	$text_token 	= preg_replace("/[^A-Za-z0-9- ]/","", $kata);
+	$text_token1 	= preg_replace("/[^A-Za-z0-9-. ]/"," ", $kata);
+	$text_token 	= preg_replace("/[^A-Za-z0-9- ]/","", $text_token1);
 	$trim_token 	= trim($text_token);
 	$kata_token   	= explode(" ",$text_token);
 	$data_token   	= array_count_values($kata_token);

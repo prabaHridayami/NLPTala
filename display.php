@@ -241,28 +241,7 @@
 					<label for="inputEmail3" class="col-sm-4 col-form-label">Text Awal :</label>
 					<div class="col-sm-8">
 						<p>: <?php 
-							// if(!empty($_POST['text'])){
 								echo $_POST['text'];
-							// }else{
-							// 	$filename = $_POST['corpus'];
-							// 	$handle = fopen($filename, "r"); 
-							// 	while (!feof($handle)) { 
-							// 		$line = fgets($handle);
-							// 		$line = preg_replace('/^\s*/', '', $line); 
-							// 		$line = preg_replace('/\s*$/', '', $line);
-
-							// 		$line = strtolower($line); 
-							// 		if ($line=="<text>") { // awal
-							// 			$start=1; 
-							// 		}elseif ($line=="</text>") { 
-							// 			$start=0; 
-							// 		}
-							// 		if ($start==1 && $line!="<text>"){
-							// 			echo $line;
-							// 		}
-							// 	}
-							// }
-
 						?> </p>
 					</div>
 				</div>
@@ -335,13 +314,8 @@
 								echo "<td style='text-align:center'>".$summary_proc[$hitparagraf][$doc]."<td>";
 								echo "</tr>";
 	
-								}
-								
-							
+								}							
 							}
-
-							
-
 						?>
 					</table>
 						
